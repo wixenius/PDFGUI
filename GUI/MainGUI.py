@@ -7,7 +7,7 @@ import webbrowser
 from tkinter import simpledialog
 from FTP.parseInfo import parseInfo, FILENAME
 from FTP.ftpDownAndUpload import downloadFile
-from helpFunc import listToCommaSeperatedString, updateFile
+from helpFunc import listToCommaSeperatedString, updateFile_PaidUnpaid, updateFile_Email
 from PDFCreater import PDFCreat
 from Emailer.sendEmail import sendEmail
 
@@ -142,13 +142,20 @@ class InfoPage(tk.Frame):
                 webbrowser.open_new(r'%s' % fileName)
 
     def updateEmail(self, idx):
-        self.lEmail[idx] = simpledialog.askstring('Email', 'Email')
+        updatedEmail = simpledialog.askstring('Email', 'Email')
+
+        try:
+            self.lEmail[idx] = updatedEmail
+        except:
+            self.lEmail.append(updatedEmail)
 
         if idx == 0:
             self.email1.config(text=self.lEmail[idx])
 
         if idx == 1:
             self.email2.config(text=self.lEmail[idx])
+
+        updateFile_Email(self.apartmentNumber, self.lEmail)
 
 
     def updateListOfUnpaid(self, i, numberOfPermissions):
@@ -168,8 +175,9 @@ class InfoPage(tk.Frame):
 
 
     def returnToHomePage(self):
-        self.email1 = ''
-        self.email2 = ''
+        self.email1.grid_remove()
+        self.email2.grid_remove()
+
         for x in self.list:
             x.grid_remove()
         self.list.clear()
@@ -200,14 +208,18 @@ class InfoPage(tk.Frame):
             self.email1.grid(row=3, column=1)
             self.list.append(self.email1)
         except:
-            pass
+            self.email1 = tk.Label(self, text='')
+            self.email1.grid(row=3, column=1)
+            self.list.append(self.email1)
 
         try:
             self.email2 = tk.Label(self, text=lEmail[1])
             self.email2.grid(row=4, column=1)
             self.list.append(self.email2)
         except:
-            pass
+            self.email2 = tk.Label(self, text='')
+            self.email2.grid(row=4, column=1)
+            self.list.append(self.email2)
 
         button3 = tk.Button(self, text="Markera betalade", command=self.markAsPaid)
         button3.grid(row=2, column=2)
@@ -231,7 +243,7 @@ class InfoPage(tk.Frame):
         self.list.append(self.labelPaid)
         self.list.append(self.labelUnpaid)
 
-        updateFile(self.apartmentNumber, self.lPaid, self.lUnpaid)
+        updateFile_PaidUnpaid(self.apartmentNumber, self.lPaid, self.lUnpaid)
 
 class MarkAsPaidPage(tk.Frame):
 

@@ -14,7 +14,7 @@ def listToCommaSeperatedString(list):
 
     return s
 
-def updateFile(apartmentNumber, lPaid, lUnpaid):
+def updateFile_PaidUnpaid(apartmentNumber, lPaid, lUnpaid):
 
     with open(FILENAME) as data_file:
         data = json.load(data_file)
@@ -22,6 +22,19 @@ def updateFile(apartmentNumber, lPaid, lUnpaid):
     if apartmentNumber.upper() in data.keys():
         data[apartmentNumber.upper()]['paid'] = lPaid
         data[apartmentNumber.upper()]['unpaid'] = lUnpaid
+
+        with open(FILENAME, 'w') as outfile:
+            json.dump(data, outfile)
+
+        uploadFile(FILENAME)
+
+def updateFile_Email(apartmentNumber, lEmail):
+
+    with open(FILENAME) as data_file:
+        data = json.load(data_file)
+
+    if apartmentNumber.upper() in data.keys():
+        data[apartmentNumber.upper()]['email'] = lEmail
 
         with open(FILENAME, 'w') as outfile:
             json.dump(data, outfile)

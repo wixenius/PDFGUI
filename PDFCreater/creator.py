@@ -4,6 +4,7 @@ from reportlab.lib.enums import TA_JUSTIFY, TA_RIGHT, TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from passwords import INFO_MAIL
 
 
 class PDFCreat():
@@ -22,7 +23,7 @@ class PDFCreat():
                     I FÖRENINGENS BREVLÅDA TILLSAMMANS MED PARKERINGSTILLSTÅNDET."
         footer = "BÖRJAR DINA PARKERINGSTILLSTÅND TA SLUT?"
         footer1 = "Skicka ett mail till "
-        mail = "info@brfballstabacken4.se"
+        mail = INFO_MAIL
         footer2 = " eller lägg en lapp i föreningens brevlåda så utfärdar vi nya."
 
         ptext = '<b size=15>%s</b>' % header
