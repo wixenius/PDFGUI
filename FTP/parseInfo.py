@@ -21,6 +21,6 @@ def returnCSVEmail():
     lEmail = []
 
     for key in data.keys():
-        lEmail.extend6(data[key]['email'])
+        lEmail.extend(data[key]['email'])
 
     return listToCommaSeperatedString(lEmail)
