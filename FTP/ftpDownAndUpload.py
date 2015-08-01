@@ -3,24 +3,37 @@ from passwords import FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FILENAME
 
 def downloadFile(FILENAME):
 
-    ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
+    try:
 
-    ftp.cwd('parking')
+        ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
 
-    ftp.retrbinary('RETR info.json', open(FILENAME, 'wb').write)
+        ftp.cwd('parking')
 
-    ftp.quit()
+        ftp.retrbinary('RETR info.json', open(FILENAME, 'wb').write)
 
+        ftp.quit()
+
+        return True
+
+    except:
+        return False
 
 def uploadFile(FILENAME):
 
-    ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
+    try:
 
-    ftp.cwd('parking')
+        ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
 
-    file = open(FILENAME, 'rb')                         # file to send
-    ftp.storbinary("STOR " + 'info.json', file)            # send the file
-    file.close()                                        # close file and FTP
+        ftp.cwd('parking')
 
-    ftp.quit()
+        file = open(FILENAME, 'rb')                         # file to send
+        ftp.storbinary("STOR " + 'info.json', file)            # send the file
+        file.close()                                        # close file and FTP
+
+        ftp.quit()
+
+        return True
+
+    except:
+        return False
 

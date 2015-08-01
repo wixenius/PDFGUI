@@ -44,6 +44,5 @@ def sendEmail(fileName, toAddrs):
     s = smtplib.SMTP('smtp.gmail.com:587')
     s.starttls()
     s.login(username,GMAIL_PASSWORD)
-    print(msg['To'])
     s.sendmail(msg['From'], toAddrs, msg.as_string())
     s.quit()

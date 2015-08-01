@@ -127,13 +127,16 @@ class InfoPage(tk.Frame):
             i = max(self.lPaid + self.lUnpaid)
         except:
             i = 0
+
+        downloadFile(FILENAME)
+
         numberOfPermissions = simpledialog.askinteger('Antal', 'Hur många tillstånd?')
         if numberOfPermissions:
             self.updateListOfUnpaid(i, numberOfPermissions)
             PDFC = PDFCreat(self.apartmentNumber, i+1, numberOfPermissions)
             fileName = PDFC.creat()
 
-            updateFile(self.apartmentNumber, self.lPaid, self.lUnpaid)
+            updateFile_PaidUnpaid(self.apartmentNumber, self.lPaid, self.lUnpaid)
 
             if self.checkButtonVal.get():
                 sendEmail(fileName, self.lEmail)
@@ -142,6 +145,9 @@ class InfoPage(tk.Frame):
                 webbrowser.open_new(r'%s' % fileName)
 
     def updateEmail(self, idx):
+
+        downloadFile(FILENAME)
+
         updatedEmail = simpledialog.askstring('Email', 'Email')
 
         try:
@@ -226,6 +232,9 @@ class InfoPage(tk.Frame):
         self.list.append(button3)
 
     def markAsPaid(self):
+
+        downloadFile(FILENAME)
+
         markAsPaidPageInstance = self.controller.returnInstance(MarkAsPaidPage)
         MarkAsPaidPage.spawnGridnet(markAsPaidPageInstance, self.lUnpaid)
 

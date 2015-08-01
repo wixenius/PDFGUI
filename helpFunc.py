@@ -1,6 +1,6 @@
 import json
-from FTP.parseInfo import FILENAME
-from FTP.ftpDownAndUpload import uploadFile
+from FTP.ftpDownAndUpload import uploadFile, downloadFile
+from passwords import FILENAME
 
 
 def listToCommaSeperatedString(list):
@@ -16,6 +16,9 @@ def listToCommaSeperatedString(list):
 
 def updateFile_PaidUnpaid(apartmentNumber, lPaid, lUnpaid):
 
+    if downloadFile(FILENAME) == False:
+        return False
+
     with open(FILENAME) as data_file:
         data = json.load(data_file)
 
@@ -26,9 +29,13 @@ def updateFile_PaidUnpaid(apartmentNumber, lPaid, lUnpaid):
         with open(FILENAME, 'w') as outfile:
             json.dump(data, outfile)
 
-        uploadFile(FILENAME)
+        if uploadFile(FILENAME) == False:
+            return False
 
 def updateFile_Email(apartmentNumber, lEmail):
+
+    if downloadFile(FILENAME) == False:
+        return False
 
     with open(FILENAME) as data_file:
         data = json.load(data_file)
@@ -39,4 +46,7 @@ def updateFile_Email(apartmentNumber, lEmail):
         with open(FILENAME, 'w') as outfile:
             json.dump(data, outfile)
 
-        uploadFile(FILENAME)
+        if uploadFile(FILENAME) == False:
+            return False
+
+    return True
