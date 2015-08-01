@@ -5,17 +5,18 @@ import tkinter.messagebox
 import webbrowser
 
 from tkinter import simpledialog
-from FTP.parseInfo import parseInfo, FILENAME
+from FTP.parseInfo import parseInfo, returnCSVEmail
 from FTP.ftpDownAndUpload import downloadFile
 from helpFunc import listToCommaSeperatedString, updateFile_PaidUnpaid, updateFile_Email
 from PDFCreater import PDFCreat
 from Emailer.sendEmail import sendEmail
+from passwords import FILENAME
 
 class MainGUI(tk.Tk):
 
     def __init__(self, *args, **kwargs):
 
-        tk.Tk.__init__(self, *args, **kwargs)
+        self.root = tk.Tk.__init__(self, *args, **kwargs)
 
         container = tk.Frame(self)
 
@@ -62,6 +63,19 @@ class StartPage(tk.Frame):
 
         button1 = tk.Button(self, text="Go", command=self.checkApartmentNumber)
         button1.grid(row=0, column=4)
+
+        button2 = tk.Button(self, text="Generera emaillista", command=self.generateEmailList)
+        button2.grid(row=1)
+
+    def generateEmailList(self):
+        downloadFile(FILENAME)
+
+        sCSVEMail = returnCSVEmail()
+
+        r = tk.Tk()
+        r.withdraw()
+        r.clipboard_clear()
+        r.clipboard_append(sCSVEMail)
 
     def checkApartmentNumber(self):
 
@@ -131,6 +145,11 @@ class InfoPage(tk.Frame):
         downloadFile(FILENAME)
 
         numberOfPermissions = simpledialog.askinteger('Antal', 'Hur många tillstånd?')
+
+        while numberOfPermissions != None and numberOfPermissions % 3 != 0:
+            tk.messagebox.showinfo('Fel', 'Måste vara jämt delbart med tre!')
+            numberOfPermissions = simpledialog.askinteger('Antal', 'Hur många tillstånd?')
+
         if numberOfPermissions:
             self.updateListOfUnpaid(i, numberOfPermissions)
             PDFC = PDFCreat(self.apartmentNumber, i+1, numberOfPermissions)

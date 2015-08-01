@@ -16,8 +16,9 @@ def listToCommaSeperatedString(list):
 
 def updateFile_PaidUnpaid(apartmentNumber, lPaid, lUnpaid):
 
-    if downloadFile(FILENAME) == False:
-        return False
+    ret = downloadFile(FILENAME)
+    while ret == False:
+        ret = downloadFile(FILENAME)
 
     with open(FILENAME) as data_file:
         data = json.load(data_file)
@@ -29,13 +30,15 @@ def updateFile_PaidUnpaid(apartmentNumber, lPaid, lUnpaid):
         with open(FILENAME, 'w') as outfile:
             json.dump(data, outfile)
 
-        if uploadFile(FILENAME) == False:
-            return False
+        ret = uploadFile(FILENAME)
+        while ret == False:
+            ret = uploadFile(FILENAME)
 
 def updateFile_Email(apartmentNumber, lEmail):
 
-    if downloadFile(FILENAME) == False:
-        return False
+    ret = downloadFile(FILENAME)
+    while ret == False:
+        ret = downloadFile(FILENAME)
 
     with open(FILENAME) as data_file:
         data = json.load(data_file)
@@ -46,7 +49,6 @@ def updateFile_Email(apartmentNumber, lEmail):
         with open(FILENAME, 'w') as outfile:
             json.dump(data, outfile)
 
-        if uploadFile(FILENAME) == False:
-            return False
-
-    return True
+        ret = uploadFile(FILENAME)
+        while ret == False:
+            ret = uploadFile(FILENAME)

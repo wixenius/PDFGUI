@@ -1,5 +1,5 @@
 from ftplib import FTP
-from passwords import FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FILENAME
+from passwords import FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
 
 def downloadFile(FILENAME):
 
