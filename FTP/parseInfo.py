@@ -1,7 +1,7 @@
 import json
 
-from passwords import FILENAME
 from helpFunc import listToCommaSeperatedString
+from passwords import FILENAME
 
 
 def parseInfo(apartmentNumber):
@@ -25,7 +25,6 @@ def returnCSVEmail(specificHouse = None):
             if not key.startswith(specificHouse):
                 continue
 
-        print (key)
         lEmail.extend(data[key]['email'])
 
 

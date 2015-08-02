@@ -4,12 +4,13 @@ import tkinter as tk
 import tkinter.messagebox
 import webbrowser
 
+from Emailer.sendEmail import sendEmail
 from tkinter import simpledialog
+
 from FTP.parseInfo import parseInfo, returnCSVEmail
 from FTP.ftpDownAndUpload import downloadFile
 from helpFunc import listToCommaSeperatedString, updateFile_PaidUnpaid, updateFile_Email
 from PDFCreater import PDFCreat
-from Emailer.sendEmail import sendEmail
 from passwords import FILENAME
 
 class MainGUI(tk.Tk):
