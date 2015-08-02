@@ -29,7 +29,7 @@ class MainGUI(tk.Tk):
 
         tk.Tk.wm_title(self, "Parkeringstillstånd")
 
-        for F in (StartPage, InfoPage, MarkAsPaidPage):
+        for F in (StartPage, InfoPage, MarkAsPaidPage, GenerateEmailList):
 
             frame = F(container, self)
 
@@ -68,14 +68,43 @@ class StartPage(tk.Frame):
         button2.grid(row=1)
 
     def generateEmailList(self):
+
+        self.toplevel = tk.Toplevel(self)
+        self.toplevel.wm_title("Generera emaillista")
+
+        self.checkButtonValA = tk.IntVar()
+        check = tk.Checkbutton(self.toplevel, text="A", variable=self.checkButtonValA)
+        check.toggle()
+        check.grid(row=1)
+
+        self.checkButtonValB = tk.IntVar()
+        check = tk.Checkbutton(self.toplevel, text="B", variable=self.checkButtonValB)
+        check.toggle()
+        check.grid(row=1, column=1)
+
+        button = tk.Button(self.toplevel, text="Go", command=self.appendToClipboard)
+        button.grid(row=1, column=2)
+
+    def appendToClipboard(self):
         downloadFile(FILENAME)
 
-        sCSVEMail = returnCSVEmail()
+        sCSVEmail = ''
+
+        if self.checkButtonValA.get() and self.checkButtonValB.get():
+            sCSVEmail = returnCSVEmail()
+
+        elif self.checkButtonValA.get():
+            sCSVEmail = returnCSVEmail(specificHouse='A')
+
+        elif self.checkButtonValB.get():
+            sCSVEmail = returnCSVEmail(specificHouse='B')
 
         r = tk.Tk()
         r.withdraw()
         r.clipboard_clear()
-        r.clipboard_append(sCSVEMail)
+        r.clipboard_append(sCSVEmail)
+
+        self.toplevel.destroy()
 
     def checkApartmentNumber(self):
 
@@ -169,18 +198,20 @@ class InfoPage(tk.Frame):
 
         updatedEmail = simpledialog.askstring('Email', 'Email')
 
-        try:
-            self.lEmail[idx] = updatedEmail
-        except:
-            self.lEmail.append(updatedEmail)
+        if updatedEmail:
 
-        if idx == 0:
-            self.email1.config(text=self.lEmail[idx])
+            try:
+                self.lEmail[idx] = updatedEmail
+            except:
+                self.lEmail.append(updatedEmail)
 
-        if idx == 1:
-            self.email2.config(text=self.lEmail[idx])
+            if idx == 0:
+                self.email1.config(text=self.lEmail[idx])
 
-        updateFile_Email(self.apartmentNumber, self.lEmail)
+            if idx == 1:
+                self.email2.config(text=self.lEmail[idx])
+
+            updateFile_Email(self.apartmentNumber, self.lEmail)
 
 
     def updateListOfUnpaid(self, i, numberOfPermissions):
@@ -320,3 +351,18 @@ class MarkAsPaidPage(tk.Frame):
         else:
             button.config(bg="red")
             self.lMarkedAsPaid.remove(item)
+
+class GenerateEmailList(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.controller = controller
+
+        self.checkButtonVal = tk.IntVar()
+        check = tk.Checkbutton(self, text="A", variable=self.checkButtonVal)
+        check.grid(row=1)
+
+        self.checkButtonVal2 = tk.IntVar()
+        check = tk.Checkbutton(self, text="B", variable=self.checkButtonVal2)
+        check.grid(row=1, column=1)
