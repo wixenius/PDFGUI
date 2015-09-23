@@ -6,8 +6,9 @@ from GUI import MainGUI
 
 def main():
 
-    for file in os.listdir('PDF'):
-        os.remove('PDF\\%s' % file)
+    for file in os.listdir():
+        if file.endswith('.pdf'):
+            os.remove('%s' % file)
 
     root = MainGUI.MainGUI()
     root.geometry("600x400")

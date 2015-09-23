@@ -52,7 +52,7 @@ class PDFCreat():
         return lStory
 
     def creat(self):
-        fileName = "PDF\\%s-%s.pdf" % (self.apartmentNumber, self.serialNumber)
+        fileName = "%s-%s.pdf" % (self.apartmentNumber, self.serialNumber)
         doc = SimpleDocTemplate(fileName, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
                                 topMargin=18, bottomMargin=18)
