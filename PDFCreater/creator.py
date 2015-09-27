@@ -53,6 +53,9 @@ class PDFCreat():
 
     def creat(self):
         fileName = "%s-%s.pdf" % (self.apartmentNumber, self.serialNumber)
+
+        fileName = "fem.pdf"
+
         doc = SimpleDocTemplate(fileName, pagesize=letter,
                                 rightMargin=72, leftMargin=72,
                                 topMargin=18, bottomMargin=18)
@@ -63,10 +66,14 @@ class PDFCreat():
         styles.add(ParagraphStyle(name='Right', fontName=font, alignment=TA_RIGHT))
         styles.add(ParagraphStyle(name='Center', fontName=font, alignment=TA_CENTER))
 
-        for x in range(0, self.numberOfPermissions):
-            idNumber = "%s-%d" % (self.apartmentNumber, self.serialNumber)
-            self.serialNumber+=1
-            lStory = self.addToStory(lStory, styles, idNumber)
+        for apNr in self.apartmentNumber:
+
+            for x in range(0, self.numberOfPermissions):
+                idNumber = "%s-%d" % (apNr, self.serialNumber)
+                self.serialNumber += 1
+                lStory = self.addToStory(lStory, styles, idNumber)
+
+            self.serialNumber = 1
 
         doc.build(lStory)
 
