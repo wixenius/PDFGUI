@@ -4,6 +4,7 @@ import os
 from GUI import MainGUI
 
 from PDFCreater import PDFCreat
+from helpFunc import updateFile_PaidUnpaid
 import webbrowser
 
 
@@ -25,6 +26,13 @@ def main():
     #updateFile_PaidUnpaid(self.apartmentNumber, self.lPaid, self.lUnpaid)
 
     webbrowser.open_new(r'%s' % fileName)
+
+    for lghNr in d.keys():
+        d[lghNr]["unpaid"] = [1,2,3,4,5]
+
+        updateFile_PaidUnpaid(lghNr, d[lghNr]["paid"], d[lghNr]["unpaid"])
+
+    print(d)
 
 
 if __name__ == "__main__":
