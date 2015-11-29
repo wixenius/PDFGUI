@@ -3,15 +3,20 @@
 import tkinter as tk
 import tkinter.messagebox
 import webbrowser
+import time
 
 from Emailer.sendEmail import sendEmail
-from tkinter import simpledialog
+from tkinter import simpledialog, ttk
 
-from FTP.parseInfo import parseInfo, returnCSVEmail
+from FTP.parseInfo import parseInfo, returnCSVEmail, returnData
 from FTP.ftpDownAndUpload import downloadFile
 from helpFunc import listToCommaSeperatedString, updateFile_PaidUnpaid, updateFile_Email
-from PDFCreater import PDFCreat
-from passwords import FILENAME
+from PDFCreater.creator import creatPermissionPDF, creatPermissionCompilation
+from passwords import FILENAME, EMAIL
+
+lMonths = ['Januari', 'Februari', 'Mars', 'April',
+           'Maj', 'Juni', 'Juli', 'Augusti', 'September',
+           'Oktober', 'November', 'December']
 
 class MainGUI(tk.Tk):
 
@@ -52,6 +57,7 @@ class MainGUI(tk.Tk):
 class StartPage(tk.Frame):
 
     def __init__(self, master, controller):
+        self.month = ''
         self.controller = controller
 
         tk.Frame.__init__(self, master)
@@ -67,6 +73,70 @@ class StartPage(tk.Frame):
 
         button2 = tk.Button(self, text="Generera emaillista", command=self.generateEmailList)
         button2.grid(row=1)
+
+        button3 = tk.Button(self, text="Generara sammanställning", command=self.generateCompilation)
+        button3.grid(row=2)
+
+    def generateCompilation(self):
+
+        self.toplevel = tk.Toplevel(self)
+        self.toplevel.wm_title("Generera sammanställning")
+
+        label1 = tk.Label(self.toplevel, text="År")
+        self.entry_year = tk.Entry(self.toplevel)
+        self.entry_year.insert(tk.END, time.strftime("%Y"))
+
+        label1.grid(row=0, sticky=tk.W)
+        self.entry_year.grid(row=0, column=1)
+
+        label2 = tk.Label(self.toplevel, text="Månad")
+        self.box_value_month = tk.StringVar()
+        self.box_value_month.set(lMonths[int(time.strftime("%m"))-1])
+        comboBox = ttk.Combobox(self.toplevel, values=lMonths, textvariable=self.box_value_month, state='readonly')
+
+        label2.grid(row=1, sticky=tk.W)
+        comboBox.grid(row=1, column=1)
+
+        self.checkButton_SendToMediator = tk.IntVar()
+        checkBut = tk.Checkbutton(self.toplevel, text="Skicka med email", variable=self.checkButton_SendToMediator)
+        checkBut.grid(row=2)
+
+        buttonGenerate = tk.Button(self.toplevel, text="Generara", command=self.generateCompilationPDF)
+        buttonGenerate.grid(row=2, column=3)
+
+
+    def generateCompilationPDF(self):
+
+        year = self.entry_year.get()
+        month = self.box_value_month.get()
+
+        if not (year).isdigit():
+            tk.messagebox.showinfo('Fel', 'Året måste vara ett nummer!')
+            self.generateCompilation()
+            return
+
+        year_month = "%d_%s" % (int(year), lMonths.index(month)+1)
+
+        self.toplevel.destroy()
+
+        downloadFile(FILENAME)
+        data = returnData()
+
+        d = {}
+
+        for apartmentNumber in data.keys():
+            for paidPermission in data[apartmentNumber]['paid']:
+                if data[apartmentNumber]['paid'][paidPermission] == year_month:
+                    l = d.setdefault(apartmentNumber, [])
+                    l.append(int(paidPermission))
+
+        fileName = creatPermissionCompilation(d, year_month, year, month)
+
+        if self.checkButton_SendToMediator.get():
+            subject = 'BRF Bällstabacken 4 Parkeringstillstånd sammanställning %s %s' % (month, year)
+            sendEmail(fileName, EMAIL['MEDIATOR'], subject, '')
+        else:
+            webbrowser.open_new(r'%s' % fileName)
 
     def generateEmailList(self):
 
@@ -87,6 +157,7 @@ class StartPage(tk.Frame):
         button.grid(row=1, column=2)
 
     def appendToClipboard(self):
+
         downloadFile(FILENAME)
 
         sCSVEmail = ''
@@ -131,6 +202,7 @@ class InfoPage(tk.Frame):
         self.controller = controller
         self.list = []
         self.lPaid = []
+        self.dPaid_dates = {}
         self.lUnpaid = []
         self.lEmail = []
 
@@ -182,13 +254,12 @@ class InfoPage(tk.Frame):
 
         if numberOfPermissions:
             self.updateListOfUnpaid(i, numberOfPermissions)
-            PDFC = PDFCreat(self.apartmentNumber, i+1, numberOfPermissions)
-            fileName = PDFC.creat()
+            fileName = creatPermissionPDF(self.apartmentNumber, i+1, numberOfPermissions)
 
-            updateFile_PaidUnpaid(self.apartmentNumber, self.lPaid, self.lUnpaid)
+            updateFile_PaidUnpaid(self.apartmentNumber, self.dPaid_dates, self.lUnpaid)
 
             if self.checkButtonVal.get():
-                sendEmail(fileName, self.lEmail)
+                sendEmail(fileName, self.lEmail, 'Parkeringstillstånd', 'Här kommer dina parkeringstillstånd!')
 
             else:
                 webbrowser.open_new(r'%s' % fileName)
@@ -230,7 +301,6 @@ class InfoPage(tk.Frame):
         self.labelUnpaid.config(text=listToCommaSeperatedString(self.lUnpaid))
         self.list.append(self.labelUnpaid)
 
-
     def returnToHomePage(self):
         self.email1.grid_remove()
         self.email2.grid_remove()
@@ -240,15 +310,18 @@ class InfoPage(tk.Frame):
         self.list.clear()
         self.controller.show_frame(StartPage)
 
-    def generateFirstPage(self, apartmentNumber, lPaid, lUnpaid, lEmail):
+    def generateFirstPage(self, apartmentNumber, dPaid, lUnpaid, lEmail):
         self.apartmentNumber = apartmentNumber
-        self.lPaid = lPaid
+        self.lPaid = [int(x) for x in dPaid.keys()]
+        self.dPaid_dates = dPaid
         self.lUnpaid = lUnpaid
         self.lEmail = lEmail
 
+        self.lPaid.sort()
+
         self.label.config(text=apartmentNumber)
 
-        stringPaid = listToCommaSeperatedString(lPaid[-10:])
+        stringPaid = listToCommaSeperatedString(self.lPaid[-10:])
         self.labelPaid = tk.Label(self, text=stringPaid)
         self.labelPaid.grid(row=1, column=1)
         self.list.append(self.labelPaid)
@@ -298,12 +371,15 @@ class InfoPage(tk.Frame):
         self.lPaid.sort()
         self.lUnpaid.sort()
 
+        for idnbr in lMarkedAsPaid:
+            self.dPaid_dates[idnbr] = time.strftime("%Y_%m")
+
         self.labelPaid.config(text=listToCommaSeperatedString(self.lPaid))
         self.labelUnpaid.config(text=listToCommaSeperatedString(self.lUnpaid))
         self.list.append(self.labelPaid)
         self.list.append(self.labelUnpaid)
 
-        updateFile_PaidUnpaid(self.apartmentNumber, self.lPaid, self.lUnpaid)
+        updateFile_PaidUnpaid(self.apartmentNumber, self.dPaid_dates, self.lUnpaid)
 
 class MarkAsPaidPage(tk.Frame):
 

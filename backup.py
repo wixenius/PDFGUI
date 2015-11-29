@@ -6,7 +6,7 @@ import time
 
 def backup():
     downloadFile(FILENAME)
-    uploadFile(FILENAME, 'parkingBackup', time.strftime('%Y%m%d'))
+    uploadFile(FILENAME, 'parkingBackup', time.strftime('%Y%m%d_%X'))
 
 if __name__ == "__main__":
     backup()

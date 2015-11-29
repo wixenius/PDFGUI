@@ -1,11 +1,11 @@
 from ftplib import FTP
-from passwords import FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+from passwords import FTP_DICT
 
 def downloadFile(FILENAME):
 
     try:
 
-        ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
+        ftp = FTP(FTP_DICT['SERVER'], FTP_DICT['USERNAME'], FTP_DICT['PASSWORD'])     # connect to host, default port
 
         ftp.cwd('parking')
 
@@ -22,7 +22,7 @@ def uploadFile(FILENAME, folder='parking', filenameExtension=''):
 
     try:
 
-        ftp = FTP(FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)     # connect to host, default port
+        ftp = FTP(FTP_DICT['SERVER'], FTP_DICT['USERNAME'], FTP_DICT['PASSWORD'])     # connect to host, default port
 
         ftp.cwd(folder)
 

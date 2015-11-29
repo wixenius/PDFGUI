@@ -11,19 +11,22 @@ import email.mime.application
 import email.mime.multipart
 import email.mime.text
 
-from passwords import GMAIL_PASSWORD, GMAIL_ADRESS
+from passwords import GMAIL
 from helpFunc import listToCommaSeperatedString
 
-def sendEmail(fileName, toAddrs):
+def sendEmail(fileName, toAddrs, subject, body):
 
     msg = email.mime.multipart.MIMEMultipart()
 
-    msg['Subject'] = 'Parkeringstillstånd'
-    msg['From'] = GMAIL_ADRESS
-    msg['To'] = listToCommaSeperatedString(toAddrs)
+    msg['Subject'] = subject
+    msg['From'] = GMAIL['ADRESS']
+    if isinstance(toAddrs, list):
+        msg['To'] = listToCommaSeperatedString(toAddrs)
+    else:
+        msg['To'] = toAddrs
 
     # The main body is just another attachment
-    body = email.mime.text.MIMEText('Här kommer dina parkeringstillstånd!')
+    body = email.mime.text.MIMEText(body)
     msg.attach(body)
 
     # PDF attachment
@@ -34,7 +37,7 @@ def sendEmail(fileName, toAddrs):
     msg.attach(att)
 
     # Credentials (if needed)
-    username = GMAIL_ADRESS
+    username = GMAIL['ADRESS']
 
 
     # send via Gmail server
@@ -43,6 +46,6 @@ def sendEmail(fileName, toAddrs):
     # So, I use the default port 25, but I authenticate.
     s = smtplib.SMTP('smtp.gmail.com:587')
     s.starttls()
-    s.login(username,GMAIL_PASSWORD)
+    s.login(username,GMAIL['PASSWORD'])
     s.sendmail(msg['From'], toAddrs, msg.as_string())
     s.quit()
