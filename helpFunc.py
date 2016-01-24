@@ -29,7 +29,7 @@ def updateFile_PaidUnpaid(apartmentNumber, dPaid_Date, lUnpaid):
         data[apartmentNumber.upper()]['unpaid'] = lUnpaid
 
         with open(FILENAME, 'w') as outfile:
-            pprint.pprint(data, outfile)
+            pprint.pprint(data, stream=outfile)
 
         replaceCitationInFile()
 

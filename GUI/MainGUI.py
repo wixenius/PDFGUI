@@ -364,15 +364,19 @@ class InfoPage(tk.Frame):
 
         self.controller.show_frame(MarkAsPaidPage)
 
-    def updateValues(self, lMarkedAsPaid):
-        self.lPaid += lMarkedAsPaid
-        self.lUnpaid = [x for x in self.lUnpaid if x not in lMarkedAsPaid]
+    def updateValues(self, dMarkedAsPaid):
+        self.lPaid += dMarkedAsPaid.keys()
+        self.lUnpaid = [x for x in self.lUnpaid if x not in dMarkedAsPaid.keys()]
         self.list.clear()
         self.lPaid.sort()
         self.lUnpaid.sort()
 
-        for idnbr in lMarkedAsPaid:
-            self.dPaid_dates[str(idnbr)] = time.strftime("%Y_%m")
+        for idnbr in dMarkedAsPaid.keys():
+            print(idnbr, dMarkedAsPaid[idnbr])
+            self.dPaid_dates[str(idnbr)] = dMarkedAsPaid[idnbr]
+
+
+        print(self.dPaid_dates)
 
         self.labelPaid.config(text=listToCommaSeperatedString(self.lPaid))
         self.labelUnpaid.config(text=listToCommaSeperatedString(self.lUnpaid))
@@ -386,7 +390,7 @@ class MarkAsPaidPage(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         self.list = []
-        self.lMarkedAsPaid = []
+        self.dMarkedAsPaid = {}
         tk.Frame.__init__(self, parent)
 
         button1 = tk.Button(self, text="Utför", command=self.markAsPaidAndReturnToInfoPage)
@@ -406,28 +410,70 @@ class MarkAsPaidPage(tk.Frame):
             x.grid_remove()
         self.list.clear()
 
-        if self.lMarkedAsPaid:
+        if self.dMarkedAsPaid:
             InfoPageInstance = self.controller.returnInstance(InfoPage)
-            InfoPage.updateValues(InfoPageInstance, self.lMarkedAsPaid)
-            self.lMarkedAsPaid.clear()
+            InfoPage.updateValues(InfoPageInstance, self.dMarkedAsPaid)
+            self.dMarkedAsPaid.clear()
 
         self.controller.show_frame(InfoPage)
 
     def spawnGridnet(self, lUnpaid):
+        idx = 0
+
         for idx, item in enumerate(lUnpaid):
             button = tk.Button(self, text=item, command=lambda idx=idx, item=item: self.markAsPaid(idx, item))
-            button.grid(row=0, column=idx)
+            button.grid(row=0, column=idx+2)
             self.list.append(button)
+
+
+        label3 = tk.Label(self, text="Tänk på att ändra datum först!")
+        label3.grid(row=0, column=idx+3)
+
+        self.list.append(label3)
+
+        label1 = tk.Label(self, text="År")
+        self.entry_year = tk.Entry(self)
+        self.entry_year.insert(tk.END, time.strftime("%Y"))
+
+        label1.grid(row=1, sticky=tk.W)
+        self.entry_year.grid(row=1, column=1)
+
+        self.list.append(label1)
+        self.list.append(self.entry_year)
+
+        label2 = tk.Label(self, text="Månad")
+        self.box_value_month = tk.StringVar()
+        self.box_value_month.set(lMonths[int(time.strftime("%m"))-1])
+        comboBox = ttk.Combobox(self, values=lMonths, textvariable=self.box_value_month, state='readonly')
+
+        label2.grid(row=2, sticky=tk.W)
+        comboBox.grid(row=2, column=1)
+
+        self.list.append(label2)
+        self.list.append(comboBox)
 
     def markAsPaid(self, idx, item):
 
         button = self.list[idx]
         if button.cget('bg') != 'green':
             button.config(bg="green")
-            self.lMarkedAsPaid.append(item)
+            #self.dMarkedAsPaid.append(item)
+
+            year = self.entry_year.get()
+            month = self.box_value_month.get()
+
+            if not (year).isdigit():
+                tk.messagebox.showinfo('Fel', 'Året måste vara ett nummer!')
+                return
+
+            year_month = "%d_%s" % (int(year), lMonths.index(month)+1)
+
+            self.dMarkedAsPaid[item] = year_month
         else:
             button.config(bg="red")
-            self.lMarkedAsPaid.remove(item)
+            if item in self.dMarkedAsPaid:
+                del self.dMarkedAsPaid[item]
+
 
 class GenerateEmailList(tk.Frame):
 
