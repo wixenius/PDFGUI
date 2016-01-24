@@ -1,4 +1,4 @@
-import json
+import json, pprint
 from FTP.ftpDownAndUpload import uploadFile, downloadFile
 from passwords import FILENAME
 
@@ -28,7 +28,9 @@ def updateFile_PaidUnpaid(apartmentNumber, dPaid_Date, lUnpaid):
         data[apartmentNumber.upper()]['unpaid'] = lUnpaid
 
         with open(FILENAME, 'w') as outfile:
-            json.dump(data, outfile)
+            #json.dump(data, outfile)
+            pprint.pprint(data, outfile)
+
 
         ret = uploadFile(FILENAME)
         while ret == False:
@@ -47,7 +49,8 @@ def updateFile_Email(apartmentNumber, lEmail):
         data[apartmentNumber.upper()]['email'] = lEmail
 
         with open(FILENAME, 'w') as outfile:
-            json.dump(data, outfile)
+            #json.dump(data, outfile)
+            pprint.pprint(data, outfile)
 
         ret = uploadFile(FILENAME)
         while ret == False:
