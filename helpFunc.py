@@ -1,6 +1,7 @@
 import json, pprint
 from FTP.ftpDownAndUpload import uploadFile, downloadFile
 from passwords import FILENAME
+from collections import OrderedDict
 
 
 def listToCommaSeperatedString(list):
@@ -28,9 +29,9 @@ def updateFile_PaidUnpaid(apartmentNumber, dPaid_Date, lUnpaid):
         data[apartmentNumber.upper()]['unpaid'] = lUnpaid
 
         with open(FILENAME, 'w') as outfile:
-            #json.dump(data, outfile)
             pprint.pprint(data, outfile)
 
+        replaceCitationInFile()
 
         ret = uploadFile(FILENAME)
         while ret == False:
@@ -49,10 +50,21 @@ def updateFile_Email(apartmentNumber, lEmail):
         data[apartmentNumber.upper()]['email'] = lEmail
 
         with open(FILENAME, 'w') as outfile:
-            #json.dump(data, outfile)
             pprint.pprint(data, outfile)
+
+        replaceCitationInFile()
 
         ret = uploadFile(FILENAME)
         while ret == False:
             ret = uploadFile(FILENAME)
 
+def replaceCitationInFile():
+    f = open(FILENAME,'r')
+    filedata = f.read()
+    f.close()
+
+    newdata = filedata.replace("'",'"')
+
+    f = open(FILENAME,'w')
+    f.write(newdata)
+    f.close()
