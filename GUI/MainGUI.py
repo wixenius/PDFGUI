@@ -372,11 +372,11 @@ class InfoPage(tk.Frame):
         self.lUnpaid.sort()
 
         for idnbr in dMarkedAsPaid.keys():
-            print(idnbr, dMarkedAsPaid[idnbr])
+            #print(idnbr, dMarkedAsPaid[idnbr])
             self.dPaid_dates[str(idnbr)] = dMarkedAsPaid[idnbr]
 
 
-        print(self.dPaid_dates)
+        #print(self.dPaid_dates)
 
         self.labelPaid.config(text=listToCommaSeperatedString(self.lPaid))
         self.labelUnpaid.config(text=listToCommaSeperatedString(self.lUnpaid))
