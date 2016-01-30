@@ -11,12 +11,14 @@ from tkinter import simpledialog, ttk
 from FTP.parseInfo import parseInfo, returnCSVEmail, returnData
 from FTP.ftpDownAndUpload import downloadFile
 from helpFunc import listToCommaSeperatedString, updateFile_PaidUnpaid, updateFile_Email
-from PDFCreater.creator import creatPermissionPDF, creatPermissionCompilation
+from PDFCreater.creator import creatPermissionPDF, creatPermissionCompilation, creatPermissionCompilationYearly
 from passwords import FILENAME, EMAIL
 
 lMonths = ['Januari', 'Februari', 'Mars', 'April',
            'Maj', 'Juni', 'Juli', 'Augusti', 'September',
            'Oktober', 'November', 'December']
+
+from Logger import Logger
 
 class MainGUI(tk.Tk):
 
@@ -101,11 +103,45 @@ class StartPage(tk.Frame):
         checkBut = tk.Checkbutton(self.toplevel, text="Skicka med email", variable=self.checkButton_SendToMediator)
         checkBut.grid(row=2)
 
-        buttonGenerate = tk.Button(self.toplevel, text="Generara", command=self.generateCompilationPDF)
-        buttonGenerate.grid(row=2, column=3)
+        buttonGenerate_monthly = tk.Button(self.toplevel, text="Månad", command=self.generateCompilationMonthlyPDF)
+        buttonGenerate_monthly.grid(row=2, column=3)
+
+        buttonGenerate_yearly = tk.Button(self.toplevel, text="År", command=self.generateCompilationYearlyPDF)
+        buttonGenerate_yearly.grid(row=2, column=4)
 
 
-    def generateCompilationPDF(self):
+    def generateCompilationYearlyPDF(self):
+
+        year = self.entry_year.get()
+
+        if not (year).isdigit():
+            tk.messagebox.showinfo('Fel', 'Året måste vara ett nummer!')
+            self.generateCompilation()
+            return
+
+        self.toplevel.destroy()
+
+        downloadFile(FILENAME)
+        data = returnData()
+
+        d = {}
+
+        for apartmentNumber in data.keys():
+            for paidPermission in data[apartmentNumber]['paid']:
+                if data[apartmentNumber]['paid'][paidPermission][:4] == year:
+                    d_inner = d.setdefault(data[apartmentNumber]['paid'][paidPermission][5:], {})
+                    l = d_inner.setdefault(apartmentNumber, [])
+                    l.append(int(paidPermission))
+
+        fileName = creatPermissionCompilationYearly(d, year)
+
+        if self.checkButton_SendToMediator.get():
+            subject = 'BRF Bällstabacken 4 Parkeringstillstånd sammanställning %s' % (year)
+            sendEmail(fileName, EMAIL['MEDIATOR'], subject, '')
+        else:
+            webbrowser.open_new(r'%s' % fileName)
+
+    def generateCompilationMonthlyPDF(self):
 
         year = self.entry_year.get()
         month = self.box_value_month.get()

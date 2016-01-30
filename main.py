@@ -2,8 +2,9 @@
 import os
 
 import tkinter as tk
+import tkinter.font
 
-import passwords
+from Logger import Logger
 
 from GUI import MainGUI
 from backup import backup
@@ -29,9 +30,14 @@ def doNothing():
 
 def main():
 
+    logger = Logger.Logger()
+
     for file in os.listdir():
         if file.endswith('.pdf'):
-            os.remove('%s' % file)
+            try:
+                os.remove('%s' % file)
+            except:
+                logger.log("Couldn't remove %s, file is already in use." % (file))
 
     backup()
 
@@ -48,6 +54,10 @@ def main():
     #editMent = Menu(menu)
     #menu.add_cascade(label="Edit", menu=editMent)
     #editMent.add_command(label="Uppdatera lösenord", command=doNothing)
+
+    default_font = tkinter.font.nametofont("TkDefaultFont")
+    default_font.configure(size=15)
+    root.option_add("*Font", default_font)
 
     root.geometry("800x600")
     root.mainloop()

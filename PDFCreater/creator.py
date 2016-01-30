@@ -10,7 +10,9 @@ from passwords import EMAIL, INFO, PERMISSION_DATA
 
 from helpFunc import listToCommaSeperatedString
 
-
+lMonths = ['Januari', 'Februari', 'Mars', 'April',
+           'Maj', 'Juni', 'Juli', 'Augusti', 'September',
+           'Oktober', 'November', 'December']
 
 def creatPermissionCompilation(d, year_month, year, month):
     fileName = "Sammanstl-%s_%s.pdf" % (year, month)
@@ -35,13 +37,6 @@ def creatPermissionCompilation(d, year_month, year, month):
                        ('BOX', (0,0), (-1,-1), 0.25, colors.black),
                        ])
 
-    lStory = addToCompilationStory(lStory, styles, d, year, month, style)
-
-    doc.build(lStory)
-
-    return fileName
-
-def addToCompilationStory(lStory, styles, d, year, month, tableStyle):
     header = "%s %d" % (month, int(year))
     title = "SAMMANSTÄLLNING AV PARKERINGSTILLSTÅND"
 
@@ -51,6 +46,59 @@ def addToCompilationStory(lStory, styles, d, year, month, tableStyle):
     ptext = '<font size=18>%s</font>' % title
     lStory.append(Paragraph(ptext, styles["Justify"]))
     lStory.append(Spacer(1, 40))
+
+    lStory = addToCompilationStory(lStory, styles, d, year, month, style)
+
+    doc.build(lStory)
+
+    return fileName
+
+def creatPermissionCompilationYearly(d, year):
+    fileName = "Sammanstl-%s.pdf" % (year)
+    doc = SimpleDocTemplate(fileName, pagesize=letter,
+                        rightMargin=72, leftMargin=72,
+                        topMargin=18, bottomMargin=18)
+
+    lStory=[]
+    styles = getSampleStyleSheet()
+    font = "Helvetica"
+    styles.add(ParagraphStyle(name='Justify', fontName=font, alignment=TA_JUSTIFY))
+    styles.add(ParagraphStyle(name='Right', fontName=font, alignment=TA_RIGHT))
+    styles.add(ParagraphStyle(name='Center', fontName=font, alignment=TA_CENTER))
+    style = TableStyle([('ALIGN',(1,1),(-2,-2),'RIGHT'),
+                       ('TEXTCOLOR',(1,1),(-2,-2),colors.red),
+                       ('VALIGN',(0,0),(0,-1),'TOP'),
+                       ('TEXTCOLOR',(0,0),(0,-1),colors.blue),
+                       ('ALIGN',(0,-1),(-1,-1),'CENTER'),
+                       ('VALIGN',(0,-1),(-1,-1),'MIDDLE'),
+                       ('TEXTCOLOR',(0,-1),(-1,-1),colors.green),
+                       ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+                       ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+                       ])
+
+    header = "%d" % (int(year))
+    title = "SAMMANSTÄLLNING AV PARKERINGSTILLSTÅND"
+
+    ptext = '<b size=15>%s</b>' % header
+    lStory.append(Paragraph(ptext, styles["Right"]))
+
+    ptext = '<font size=18>%s</font>' % title
+    lStory.append(Paragraph(ptext, styles["Justify"]))
+    lStory.append(Spacer(1, 40))
+
+    for key in sorted(d, key=int):
+        lStory = addToCompilationStory(lStory, styles, d[key], year, lMonths[int(key)-1], style)
+
+    doc.build(lStory)
+
+    return fileName
+
+def addToCompilationStory(lStory, styles, d, year, month, tableStyle):
+
+    ptext = '<font size=18>%s</font>' % month
+    lStory.append(Paragraph(ptext, styles["Justify"]))
+
+    lStory.append(Spacer(1, 15))
 
     data = [['Lgh nr', 'Antal', 'Tillstånds ID', 'Att betala']]
 
@@ -69,11 +117,13 @@ def addToCompilationStory(lStory, styles, d, year, month, tableStyle):
     t.setStyle(tableStyle)
 
     lStory.append(t)
-    lStory.append(Spacer(1, 50))
+    lStory.append(Spacer(1, 15))
 
-    summary = "I %s %s betalades %d parkeringstillstånd á %d kr." % (month, year, agg_nr_of_paid, (agg_nr_of_paid*INFO['PRICE_PER_PERMISSION']))
+    summary = "I %s %s betalades %d parkeringstillstånd á %d kr. " % (month, year, agg_nr_of_paid, (agg_nr_of_paid*INFO['PRICE_PER_PERMISSION']))
     ptext = '<font size=14>%s</font>' % summary
     lStory.append(Paragraph(ptext, styles["Justify"]))
+
+    lStory.append(Spacer(1, 50))
 
     return lStory
 
