@@ -59,7 +59,11 @@ def main():
     default_font.configure(size=15)
     root.option_add("*Font", default_font)
 
-    root.geometry("800x600")
+    w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+    #root.overrideredirect(1)
+    #root.geometry("%dx%d+0+0" % (w, h))
+
+    root.geometry("%dx%d" % (w, h-100))
     root.mainloop()
 
 
